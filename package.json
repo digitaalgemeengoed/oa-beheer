@@ -1,0 +1,13 @@
+{
+  "name": "oa-beheer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Beheerportaal van de Office Assistent: mensen, toegang, beveiliging en audit.",
+  "license": "EUPL-1.2",
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "build": "npm run build -w frontend && npm run build -w backend",
+    "test": "npm test -w backend"
+  },
+  "repository": { "type": "git", "url": "git+https://github.com/digitaalgemeengoed/oa-beheer.git" }
+}
