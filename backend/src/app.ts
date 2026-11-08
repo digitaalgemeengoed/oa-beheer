@@ -68,6 +68,8 @@ export function clientIp(req: FastifyRequest): string {
 export async function bouwApp(diensten: DienstenInvoer, routes: ((app: FastifyInstance) => Promise<void>)[] = []): Promise<FastifyInstance> {
   const app = Fastify({
     bodyLimit: 64 * 1024,
+    // Onbekende velden weigeren in plaats van stil weglaten.
+    ajv: { customOptions: { removeAdditional: false, coerceTypes: "array", useDefaults: true } },
     // Caddy staat ervoor; alleen adressen uit private netwerken zijn proxy.
     trustProxy: ["127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128"],
     // Geen standaardlog per verzoek: daar staan querystrings in (codes van Keycloak).

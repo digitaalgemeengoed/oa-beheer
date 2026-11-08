@@ -75,6 +75,7 @@ export function toetsWaarde(i: Pick<Instelling, "type" | "minimum" | "maximum">,
       }
     case "lijst":
       if (!Array.isArray(w) || w.length > 100 || !w.every((x) => typeof x === "string" && x.length > 0 && x.length <= 254)) return { ok: false, fout: "ongeldige-lijst" };
-      return { ok: true, waarde: [...new Set(w.map((x: string) => x.trim()))] };
+      // E-mailadressen en netwerkadressen: zonder spaties, kleine letters, elk één keer.
+      return { ok: true, waarde: [...new Set(w.map((x: string) => x.trim().toLowerCase()))] };
   }
 }

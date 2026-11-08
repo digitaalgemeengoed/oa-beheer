@@ -6,6 +6,7 @@ import { Oidc } from "./oidc.js";
 import { voerStatuswijzigingenUit } from "./persoon.js";
 import { ruimPogingenOp } from "./pogingen.js";
 import { routes } from "./routes/index.js";
+import { dagelijks } from "./routes/audit.js";
 
 const config = leesConfig();
 const pool = maakPool(config.databaseUrl);
@@ -18,6 +19,7 @@ const taken = async () => {
   try {
     await voerStatuswijzigingenUit(pool, d.nu());
     await ruimPogingenOp(d);
+    await dagelijks(d);
   } catch (e) {
     app.log.error({ fout: (e as Error).message }, "periodieke taak mislukt");
   }
