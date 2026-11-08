@@ -1,0 +1,41 @@
+/* Alleen eigen stijlen; geen inline stijlen (CSP). */
+html, body { margin: 0; }
+.ab-pagina { min-height: 100vh; display: flex; flex-direction: column; }
+.ab-kop { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding: 12px 24px; border-bottom: 4px solid var(--haarlem-color-primary, #a0153e); }
+.ab-kop-titel { font-weight: 700; font-size: 1.15rem; }
+.ab-kop-wie { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ab-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 24px; background: #f4f4f2; }
+.ab-nav a[aria-current="page"] { font-weight: 700; }
+.ab-inhoud { flex: 1; padding: 16px 24px 48px; max-width: 1100px; width: 100%; box-sizing: border-box; }
+.ab-nood { background: #a4262c; color: #fff; padding: 8px 24px; font-weight: 700; }
+.ab-kaarten { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.ab-kaart { border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; }
+.ab-kaart-getal { font-size: 2rem; font-weight: 700; }
+.ab-formulier { display: grid; gap: 12px; max-width: 640px; margin: 16px 0 32px; }
+.ab-knoppen { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.ab-tabel { overflow-x: auto; }
+.ab-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+.ab-klein { font-size: 0.85rem; color: #555; }
+.ab-mono { font-family: ui-monospace, monospace; font-size: 0.85rem; word-break: break-all; }
+.ab-smal { max-width: 480px; margin: 48px auto; padding: 0 16px; }
+.ab-vinkjes { display: grid; gap: 6px; }
+.ab-vinkjes label { display: flex; gap: 8px; align-items: center; }
+@media (max-width: 600px) { .ab-kop, .ab-nav, .ab-inhoud { padding-left: 16px; padding-right: 16px; } }
+
+/* NL Design System zet het vinkje als data:-afbeelding; de CSP staat alleen
+   'self' toe. Dezelfde iconen als eigen bestanden. */
+.utrecht-checkbox--custom.utrecht-checkbox--checked,
+.utrecht-custom-checkbox--checked,
+.utrecht-checkbox--custom.utrecht-checkbox--html-input:checked,
+.utrecht-custom-checkbox--html-input:checked { background-image: url("/vinkje.svg"); }
+.utrecht-checkbox--custom.utrecht-checkbox--indeterminate,
+.utrecht-custom-checkbox--indeterminate,
+.utrecht-checkbox--custom.utrecht-checkbox--html-input:indeterminate,
+.utrecht-custom-checkbox--html-input:indeterminate { background-image: url("/streep.svg"); }
+
+/* Tabellen: ruimte tussen kolommen, tijd en adres op één regel. */
+.ab-tabel { margin: 16px 0; }
+.ab-tabel th, .ab-tabel td { padding: 8px 16px 8px 0; vertical-align: top; text-align: start; border-bottom: 1px solid #e6e6e6; }
+.ab-tabel td:first-child { white-space: nowrap; }
+.ab-tabel .ab-mono { white-space: normal; }
+.ab-filters .ab-knoppen { align-self: end; }

@@ -55,7 +55,7 @@ wordt nergens anders getoond of bewaard.
 
 Voeg het TOTP-geheim toe aan een authenticator-app (bijvoorbeeld door de
 otpauth-regel als QR-code te tonen, of het geheim met de hand in te voeren).
-Inloggen: https://${config.host}/emergency
+Inloggen: ${config.herkomst}/emergency
 `);
     return;
   }
