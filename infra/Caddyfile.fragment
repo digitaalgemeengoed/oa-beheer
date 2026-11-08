@@ -1,0 +1,7 @@
+# Het beheerportaal achter Caddy. Caddy haalt het certificaat op en zet HSTS;
+# alle andere beveiligingskoppen zet het portaal zelf.
+oa-admin.{$DOMEIN} {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy beheer:4300
+}

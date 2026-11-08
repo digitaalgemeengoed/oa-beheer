@@ -1,0 +1,73 @@
+# Een zelfstandig voorbeeld: portaal, database en Caddy. In de Office Assistent
+# staat dit in oa-uitrol/vps1-toegang.yml.
+#
+#   cp .env.voorbeeld .env   # en vul nieuwe geheimen in (openssl rand -hex 32)
+#   docker compose -f compose.voorbeeld.yml up -d --build
+#   docker compose -f compose.voorbeeld.yml run --rm beheer-migreer node backend/dist/cli.js nood-instellen
+name: oa-beheer
+
+services:
+  beheer-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: oa_beheer
+      POSTGRES_USER: oa_beheer_eigenaar
+      POSTGRES_PASSWORD: ${BEHEER_DB_EIGENAAR_WACHTWOORD:?}
+    volumes: [beheerdb:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oa_beheer_eigenaar -d oa_beheer"]
+      interval: 5s
+      retries: 20
+    # Geen ports: alleen het portaal bereikt de database.
+
+  # Migraties en het hoofdaccount, als eigenaar van de database. Stopt daarna.
+  beheer-migreer:
+    build: ..
+    image: oa/beheer:local
+    command: ["node", "backend/dist/cli.js", "migreer"]
+    environment: &omgeving
+      BEHEER_HOST: oa-admin.${DOMEIN:?}
+      ADMIN_SECRET: ${BEHEER_ADMIN_SECRET:?}
+      DATABASE_URL: postgres://oa_beheer_app:${BEHEER_DB_APP_WACHTWOORD:?}@beheer-db:5432/oa_beheer
+      DATABASE_URL_EIGENAAR: postgres://oa_beheer_eigenaar:${BEHEER_DB_EIGENAAR_WACHTWOORD:?}@beheer-db:5432/oa_beheer
+      DATABASE_APP_WACHTWOORD: ${BEHEER_DB_APP_WACHTWOORD:?}
+      HOOFDACCOUNT_EMAIL: ${BEHEER_HOOFDACCOUNT:-beheerder@${DOMEIN}}
+      # Leeg = inloggen via Keycloak staat uit (alleen /emergency werkt).
+      OIDC_ISSUER: ${BEHEER_OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: oa-beheer
+      OIDC_CLIENT_SECRET: ${BEHEER_OIDC_SECRET:-}
+      # Leeg = geen e-mail.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_POORT: ${SMTP_POORT:-587}
+      SMTP_GEBRUIKER: ${SMTP_GEBRUIKER:-}
+      SMTP_WACHTWOORD: ${SMTP_WACHTWOORD:-}
+      SMTP_AFZENDER: ${SMTP_AFZENDER:-}
+      SMTP_TLS: ${SMTP_TLS:-starttls}
+    restart: "no"
+    depends_on:
+      beheer-db: { condition: service_healthy }
+
+  beheer:
+    image: oa/beheer:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment: *omgeving
+    depends_on:
+      beheer-migreer: { condition: service_completed_successfully }
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: { DOMEIN: "${DOMEIN:?}" }
+    volumes:
+      - ./Caddyfile.fragment:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+
+volumes:
+  beheerdb:
+  caddydata:

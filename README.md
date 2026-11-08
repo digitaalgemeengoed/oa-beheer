@@ -4,7 +4,7 @@
 
 > In opbouw. Een prototype, geen product.
 
-Ontwerp en beveiliging: [`docs/security.md`](docs/security.md) (volgt).
+Ontwerp en beveiliging: [`docs/security.md`](docs/security.md). Uitrol: [`infra/`](infra/README.md).
 
 ## Licentie
 
