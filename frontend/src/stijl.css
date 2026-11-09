@@ -112,3 +112,27 @@ html, body { margin: 0; }
   .md-veld-regel { grid-template-columns: auto auto minmax(0, 1fr); }
   .md-veld-knoppen { grid-column: 1 / -1; justify-content: flex-end; }
 }
+
+/* Anonimiseren */
+.an-tabs { display: flex; gap: 4px; border-bottom: 2px solid #ddd; margin: 8px 0 16px; }
+.an-tab { font: inherit; background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 8px 14px; cursor: pointer; }
+.an-tab.actief { border-bottom-color: var(--haarlem-color-primary, #a0153e); font-weight: 700; }
+.an-filters { max-width: 280px; margin-bottom: 16px; }
+.an-kaarten { margin: 16px 0; }
+.an-uitleg { margin: 8px 0 24px; }
+.an-uitleg summary { cursor: pointer; }
+.an-balk { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.an-balk-achter { fill: #e6e6e6; }
+.an-goed .an-balk-voor { fill: #1b6f3f; }
+.an-matig .an-balk-voor { fill: #8f5400; }
+.an-slecht .an-balk-voor { fill: #a4262c; }
+.an-scores { margin: 8px 0 24px; max-width: 560px; }
+.an-scores svg { width: 100%; height: auto; display: block; }
+.an-juist { fill: #1b6f3f; }
+.an-onterecht { fill: #a4262c; }
+.an-getal { font-size: 10px; fill: #333; }
+.an-as { font-size: 11px; fill: #555; }
+.an-lijn { stroke: #999; }
+.an-stip { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-left: 8px; }
+.an-juist-stip { background: #1b6f3f; }
+.an-onterecht-stip { background: #a4262c; }

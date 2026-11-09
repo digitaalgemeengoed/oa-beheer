@@ -1,6 +1,6 @@
 {
   "name": "oa-beheer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Beheerportaal van de Office Assistent: mensen, toegang, beveiliging en audit.",
   "license": "EUPL-1.2",

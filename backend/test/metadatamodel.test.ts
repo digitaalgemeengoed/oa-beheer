@@ -24,6 +24,7 @@ const nepFetch = (async (url: string | URL, init?: RequestInit) => {
   const lichaam = init?.body ? JSON.parse(String(init.body)) : undefined;
   aanroepen.push({ methode: init?.method ?? "GET", pad, kop, lichaam });
   const json = (status: number, j: unknown) => new Response(JSON.stringify(j), { status, headers: { "content-type": "application/json" } });
+  if (pad === "/anonimisering/kwaliteit") return json(200, { metingen: 2, query: new URL(String(url)).search });
   if (pad === "/metadatamodellen") return json(200, { modellen: { mdto: { naam: "MDTO", velden: [] } }, waardelijsten: {}, rollen: ["titel"] });
   if (pad === "/objecttypen/document") return json(200, { versie, titel: "Document", schema: { properties: {} } });
   if (pad === "/objecttypen/document/versies") return json(200, [{ versie, gedeeld: versie === 1 }]);
@@ -56,7 +57,7 @@ before(async () => {
   const g = async (naam: string, rechten: string[]) => (await pool.query("INSERT INTO groepen (naam, rechten, niveau) VALUES ($1, $2, 2) RETURNING id", [naam, rechten])).rows[0].id;
   const beheer = await g("Informatiebeheer", ["metadata.view", "metadata.manage"]);
   const lezen = await g("Meelezers", ["metadata.view"]);
-  const niets = await g("Anderen", ["audit.view"]);
+  const niets = await g("Anderen", ["audit.view", "anonimiseren.view"]);
   for (const [s, gr] of [["ib", beheer], ["lezer", lezen], ["ander", niets]] as const) {
     id[s] = (await pool.query("INSERT INTO accounts (email, naam) VALUES ($1, $1) RETURNING id", [`${s}@test.nl`])).rows[0].id;
     await pool.query("INSERT INTO lidmaatschappen VALUES ($1, $2)", [id[s], gr]);
@@ -128,4 +129,13 @@ test("publiceren: met reden, in de audit, concept weg; een fout van het platform
   assert.equal(fout.json().details[0].melding, "Er moet een veld voor de titel aan staan.");
   const a2 = await pool.query("SELECT resultaat FROM audit WHERE actie = 'metadatamodel.gepubliceerd' ORDER BY id");
   assert.deepEqual(a2.rows.map((x) => x.resultaat), ["ok", "geweigerd"]);
+});
+
+test("anonimiseren, kwaliteit: alleen met anonimiseren.view; de vraag gaat door naar het platform", async () => {
+  assert.equal((await vraag(app, await sessie(id.ib), "GET", "/api/anonimiseren/kwaliteit")).statusCode, 403);
+  const r = await vraag(app, await sessie(id.ander), "GET", "/api/anonimiseren/kwaliteit?dagen=30&drempel=3");
+  assert.equal(r.statusCode, 200, r.body);
+  assert.deepEqual(r.json(), { metingen: 2, query: "?dagen=30&drempel=3" });
+  assert.equal((await vraag(app, await sessie(id.ander), "GET", "/api/anonimiseren/kwaliteit?drempel=1")).statusCode, 400);
+  assert.equal((await vraag(zonder, await sessie(id.ander), "GET", "/api/anonimiseren/kwaliteit")).statusCode, 409);
 });
