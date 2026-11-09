@@ -8,6 +8,7 @@ export class ApiFout extends Error {
     readonly status: number,
     readonly code: string,
     melding: string,
+    readonly details?: { veld?: string; melding: string }[],
   ) {
     super(melding);
   }
@@ -25,9 +26,9 @@ export async function api<T>(methode: "GET" | "POST" | "PUT" | "DELETE", pad: st
     headers: methode === "GET" ? { accept: "application/json" } : { accept: "application/json", "content-type": "application/json" },
     body: methode === "GET" ? undefined : JSON.stringify(lijf ?? {}),
   });
-  const j = (await r.json().catch(() => ({}))) as { fout?: string; melding?: string };
+  const j = (await r.json().catch(() => ({}))) as { fout?: string; melding?: string; details?: { veld?: string; melding: string }[] };
   if (r.status === 401 && pad !== "/api/nood/inloggen") bijUitgelogd();
-  if (!r.ok) throw new ApiFout(r.status, j.fout ?? "fout", j.melding ?? `Fout ${r.status}`);
+  if (!r.ok) throw new ApiFout(r.status, j.fout ?? "fout", j.melding ?? `Fout ${r.status}`, j.details);
   return j as T;
 }
 

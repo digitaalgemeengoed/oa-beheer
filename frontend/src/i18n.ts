@@ -12,6 +12,7 @@ const T = {
   groepen: ["Groepen", "Groups"],
   audit: ["Audit", "Audit trail"],
   instellingen: ["Instellingen", "Settings"],
+  metadatamodel: ["Metadatamodel", "Metadata model"],
   profiel: ["Profiel", "Profile"],
   niveau: ["Niveau", "Clearance"],
   nood: ["Noodtoegang. Deze sessie eindigt om", "Emergency access. This session ends at"],

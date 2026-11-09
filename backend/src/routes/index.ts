@@ -7,6 +7,7 @@ import { groepRoutes } from "./groepen.js";
 import { profielRoutes } from "./profiel.js";
 import { auditRoutes } from "./audit.js";
 import { instellingRoutes } from "./instellingen.js";
+import { metadatamodelRoutes } from "./metadatamodel.js";
 
 /** Alle routes, in volgorde; de toegangscontrole eerst. */
-export const routes: ((app: FastifyInstance) => Promise<void>)[] = [toegang, authRoutes, noodRoutes, accountRoutes, groepRoutes, profielRoutes, auditRoutes, instellingRoutes];
+export const routes: ((app: FastifyInstance) => Promise<void>)[] = [toegang, authRoutes, noodRoutes, accountRoutes, groepRoutes, profielRoutes, auditRoutes, instellingRoutes, metadatamodelRoutes];

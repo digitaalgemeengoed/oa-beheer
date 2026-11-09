@@ -5,6 +5,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import type pg from "pg";
 import type { Config } from "./config.js";
+import { Platform } from "./platform.js";
 import { Sleutels } from "./sleutels.js";
 import type { Mailer } from "./mail.js";
 import type { Oidc } from "./oidc.js";
@@ -16,6 +17,8 @@ export class AppFout extends Error {
     readonly status: number,
     readonly code: string,
     melding: string,
+    /** Toelichting per veld, zoals het platform die geeft. */
+    readonly details?: unknown,
   ) {
     super(melding);
   }
@@ -43,9 +46,11 @@ export interface Diensten {
   mailer: Mailer;
   /** Keycloak; null als OIDC niet is ingesteld (dan kan alleen het noodaccount in). */
   oidc: Oidc | null;
+  /** Het platform; null als het niet is ingesteld (dan staat het metadatamodel uit). */
+  platform: Platform | null;
 }
 
-export type DienstenInvoer = Omit<Diensten, "sleutels" | "nu" | "mailer" | "oidc"> & Partial<Pick<Diensten, "nu" | "mailer" | "oidc">>;
+export type DienstenInvoer = Omit<Diensten, "sleutels" | "nu" | "mailer" | "oidc" | "platform"> & Partial<Pick<Diensten, "nu" | "mailer" | "oidc" | "platform">>;
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -83,6 +88,7 @@ export async function bouwApp(diensten: DienstenInvoer, routes: ((app: FastifyIn
     ...diensten,
     sleutels: new Sleutels(diensten.config.adminSecret),
     nu: diensten.nu ?? (() => new Date()),
+    platform: diensten.platform !== undefined ? diensten.platform : diensten.config.platform ? new Platform(diensten.config.platform) : null,
     mailer: diensten.mailer ?? { verstuur: async () => {} },
     oidc: diensten.oidc ?? null,
   });
@@ -116,7 +122,7 @@ export async function bouwApp(diensten: DienstenInvoer, routes: ((app: FastifyIn
   });
 
   app.setErrorHandler((fout, req, antwoord) => {
-    if (fout instanceof AppFout) return antwoord.code(fout.status).send({ fout: fout.code, melding: fout.message });
+    if (fout instanceof AppFout) return antwoord.code(fout.status).send({ fout: fout.code, melding: fout.message, ...(fout.details !== undefined ? { details: fout.details } : {}) });
     const f = fout as { validation?: unknown; statusCode?: number; code?: string };
     if (f.validation) return antwoord.code(400).send({ fout: "verzoek-ongeldig" });
     if (f.statusCode === 413) return antwoord.code(413).send({ fout: "te-groot" });

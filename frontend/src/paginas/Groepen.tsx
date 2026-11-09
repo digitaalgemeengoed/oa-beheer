@@ -7,7 +7,7 @@ import { api, type Ik } from "../api";
 import { t } from "../i18n";
 import { foutTekst, MeldingVak, RedenVeld, useLaden, type Melding } from "./gedeeld";
 
-const RECHTEN = ["accounts.view", "accounts.manage", "groups.view", "groups.manage", "audit.view", "settings.view", "settings.manage"];
+const RECHTEN = ["accounts.view", "accounts.manage", "groups.view", "groups.manage", "audit.view", "settings.view", "settings.manage", "metadata.view", "metadata.manage"];
 interface Groep { id: string; naam: string; omschrijving: string; rechten: string[]; niveau: number; superadmin: boolean; leden: number }
 type Invoer = Omit<Groep, "id" | "leden"> & { reden: string };
 

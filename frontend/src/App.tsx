@@ -9,6 +9,7 @@ import { Audit } from "./paginas/Audit";
 import { Instellingen } from "./paginas/Instellingen";
 import { Profiel } from "./paginas/Profiel";
 import { Nood } from "./paginas/Nood";
+import { Metadatamodel } from "./paginas/Metadatamodel";
 
 /** Eenvoudige router op de History-API. */
 export function ga(pad: string): void {
@@ -71,6 +72,7 @@ export function App() {
   else if (pad === "/groepen") inhoud = <Groepen ik={ik} />;
   else if (pad === "/audit" && r.has("audit.view")) inhoud = <Audit />;
   else if (pad === "/instellingen" && (r.has("settings.view") || r.has("settings.manage"))) inhoud = <Instellingen ik={ik} />;
+  else if (pad === "/metadatamodel" && (r.has("metadata.view") || r.has("metadata.manage"))) inhoud = <Metadatamodel ik={ik} />;
   else if (pad === "/profiel") inhoud = <Profiel ik={ik} opnieuw={laad} />;
   else inhoud = <Alert type="warning"><Paragraph>{t("geenRecht")}</Paragraph></Alert>;
 
@@ -91,6 +93,7 @@ export function App() {
           {r.has("accounts.view") && <L naar="/accounts">{t("accounts")}</L>}
           {(r.has("groups.view") || r.has("groups.manage") || r.has("accounts.manage")) && <L naar="/groepen">{t("groepen")}</L>}
           {r.has("audit.view") && <L naar="/audit">{t("audit")}</L>}
+          {(r.has("metadata.view") || r.has("metadata.manage")) && <L naar="/metadatamodel">{t("metadatamodel")}</L>}
           {(r.has("settings.view") || r.has("settings.manage")) && <L naar="/instellingen">{t("instellingen")}</L>}
           <L naar="/profiel">{t("profiel")}</L>
         </nav>

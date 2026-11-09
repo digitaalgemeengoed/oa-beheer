@@ -36,6 +36,12 @@ export interface Config {
   hoofdaccountEmail: string;
   oidc: { issuer: string; clientId: string; clientSecret: string } | null;
   smtp: { host: string; poort: number; gebruiker: string; wachtwoord: string; afzender: string; tls: "starttls" | "tls" | "geen" } | null;
+  /**
+   * Het platform (opendop-mini), voor de pagina's die de assistent zelf
+   * instellen, zoals het metadatamodel. Zonder deze instellingen staan die
+   * pagina's uit. De dienstsleutel is dezelfde die de integratielaag gebruikt.
+   */
+  platform: { url: string; dienstsleutel: string; gemeente: string } | null;
   /** Statische bestanden van de frontend. */
   frontendMap: string;
   /** Alleen voor tests en lokale ontwikkeling: e-mails naar een functie in plaats van SMTP. */
@@ -66,6 +72,17 @@ export function leesConfig(env: NodeJS.ProcessEnv = process.env): Config {
           wachtwoord: env.SMTP_GEBRUIKER ? geheim(env, "SMTP_WACHTWOORD", 8) : "",
           afzender: nodig(env, "SMTP_AFZENDER"),
           tls: (env.SMTP_TLS as "starttls" | "tls" | "geen") ?? "starttls",
+        }
+      : null,
+    platform: env.PLATFORM_URL
+      ? {
+          url: nodig(env, "PLATFORM_URL").replace(/\/$/, ""),
+          dienstsleutel: geheim(env, "PLATFORM_DIENSTSLEUTEL", 16),
+          gemeente: (() => {
+            const g = nodig(env, "GEMEENTE").toLowerCase();
+            if (!/^[a-z0-9-]{2,40}$/.test(g)) throw new ConfigFout("GEMEENTE is geen geldige code (zoals haarlem)");
+            return g;
+          })(),
         }
       : null,
     frontendMap: env.FRONTEND_MAP ?? new URL("../../frontend/dist", import.meta.url).pathname,

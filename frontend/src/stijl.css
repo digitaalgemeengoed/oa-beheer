@@ -48,3 +48,67 @@ html, body { margin: 0; }
 .ab-tabel td:first-child { white-space: nowrap; }
 .ab-tabel .ab-mono { white-space: normal; }
 .ab-filters .ab-knoppen { align-self: end; }
+
+/* Metadatamodel */
+.ab-lead { max-width: 760px; }
+.md-status { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin: 16px 0; background: #fafaf8; }
+.md-concept { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.md-raster { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
+.md-hoofd > section { margin-bottom: 32px; }
+.md-voorbeeld { position: sticky; top: 16px; }
+.md-modellen { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
+.md-model { display: flex; flex-direction: column; gap: 6px; text-align: start; font: inherit; color: inherit; background: #fff; border: 2px solid #ddd; border-radius: 8px; padding: 12px 14px; cursor: pointer; }
+.md-model:hover:not(:disabled) { border-color: #888; }
+.md-model.gekozen { border-color: var(--haarlem-color-primary, #a0153e); background: #fdf6f8; }
+.md-model:disabled { cursor: default; }
+.md-model:focus-visible { outline: 3px solid #1d1d1b; outline-offset: 2px; }
+.md-model-kop { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.md-model-kop .utrecht-badge-status { margin-left: auto; }
+.md-model-voluit { font-weight: 600; font-size: 0.92rem; }
+.md-velden { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 6px; }
+.md-veld { border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fff; }
+.md-veld.uit { background: #f6f6f4; }
+.md-veld.uit .md-veld-naam b { color: #6b6b6b; }
+.md-veld.fout { border-color: #a4262c; }
+.md-veld.open { border-color: #888; }
+.md-veld-regel { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.md-vink { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; }
+.md-veld-naam { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.md-labels { display: flex; flex-wrap: wrap; gap: 4px; }
+.md-label { font-size: 0.75rem; padding: 1px 8px; border-radius: 99px; background: #eee; color: #333; overflow-wrap: anywhere; }
+.md-model-label { background: #e7eef7; color: #22426b; font-family: ui-monospace, monospace; }
+.md-aanvulling { background: #fbefd6; color: #6b4300; }
+.md-eigen { background: #ebe5f8; color: #47307f; }
+.md-rol { background: #def2e5; color: #1b5a33; }
+.md-verplicht { background: #fbe3e0; color: #8a2019; }
+.md-veld-knoppen { display: flex; gap: 2px; }
+.md-probleem { margin: 6px 0 0; font-size: 0.85rem; }
+.md-probleem.fout { color: #a4262c; }
+.md-probleem.waarschuwing { color: #6b4300; }
+.md-bewerk { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #ddd; }
+.md-twee { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.md-waarden { margin: 0; }
+.md-nieuw { border: 1px dashed #888; border-radius: 6px; padding: 12px 16px; display: grid; gap: 10px; margin: 12px 0; }
+.md-automatisch { margin-top: 12px; }
+.md-automatisch summary { cursor: pointer; }
+.md-problemen { list-style: none; padding: 0; display: grid; gap: 6px; }
+.md-verschil { margin: 8px 0 16px; }
+.md-paneel { border: 1px solid #c8c8c8; border-radius: 8px; padding: 14px; background: #fff; font-size: 0.85rem; box-shadow: 0 6px 18px rgba(0,0,0,.08); max-height: calc(100vh - 140px); overflow: auto; }
+.md-paneel-kop { font-weight: 700; font-size: 1.1rem; }
+.md-paneel-sub { color: #555; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+.md-paneel-veld { margin: 10px 0; }
+.md-paneel-label { font-weight: 600; }
+.md-paneel-hulp { color: #555; font-size: 0.8rem; margin: 2px 0 4px; }
+.md-paneel-invoer { border: 1px solid #1d1d1b; border-radius: 2px; min-height: 30px; padding: 5px 8px; box-sizing: border-box; color: #777; }
+.md-paneel-invoer.lang { min-height: 56px; }
+.md-paneel-invoer.keuze::after, .md-paneel-invoer.datum::after { content: "▾"; float: right; color: #333; }
+.md-paneel-aard { display: flex; gap: 6px; margin-top: 4px; }
+.md-paneel-aard span { border: 1px solid #1d1d1b; padding: 3px 10px; border-radius: 2px; }
+.md-paneel-aard span.aan { background: #1d1d1b; color: #fff; }
+.md-paneel-knop { display: inline-block; margin-top: 8px; background: #1d1d1b; color: #fff; padding: 6px 12px; border-radius: 2px; font-weight: 600; }
+@media (max-width: 900px) {
+  .md-raster { grid-template-columns: minmax(0, 1fr); }
+  .md-voorbeeld { position: static; }
+  .md-veld-regel { grid-template-columns: auto auto minmax(0, 1fr); }
+  .md-veld-knoppen { grid-column: 1 / -1; justify-content: flex-end; }
+}
