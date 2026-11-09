@@ -28,6 +28,15 @@ html, body { margin: 0; }
 .utrecht-custom-checkbox--checked,
 .utrecht-checkbox--custom.utrecht-checkbox--html-input:checked,
 .utrecht-custom-checkbox--html-input:checked { background-image: url("/vinkje.svg"); }
+/* Het vinkje is wit; het Haarlem-thema geeft een aangevinkt vakje geen
+   achtergrondkleur, waardoor het vinkje onzichtbaar bleef. */
+:root {
+  --utrecht-checkbox-checked-background-color: var(--utrecht-button-primary-action-background-color, #1d1d1b);
+  --utrecht-checkbox-checked-border-color: var(--utrecht-button-primary-action-background-color, #1d1d1b);
+  --utrecht-checkbox-checked-hover-background-color: var(--utrecht-button-primary-action-hover-background-color, #3a3a38);
+  --utrecht-checkbox-checked-active-background-color: var(--utrecht-button-primary-action-hover-background-color, #3a3a38);
+  --utrecht-checkbox-indeterminate-background-color: var(--utrecht-button-primary-action-background-color, #1d1d1b);
+}
 .utrecht-checkbox--custom.utrecht-checkbox--indeterminate,
 .utrecht-custom-checkbox--indeterminate,
 .utrecht-checkbox--custom.utrecht-checkbox--html-input:indeterminate,
