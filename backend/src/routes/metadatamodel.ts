@@ -39,7 +39,7 @@ function magZien(req: FastifyRequest): void {
 const CONFIG = {
   type: "object",
   required: ["basis", "velden"],
-  properties: { basis: { type: "string", maxLength: 10 }, velden: { type: "array", maxItems: 200, items: { type: "object" } } },
+  properties: { basis: { type: "string", maxLength: 10 }, naam: { type: "string", maxLength: 80 }, velden: { type: "array", maxItems: 200, items: { type: "object" } } },
 } as const;
 
 export async function metadatamodelRoutes(app: FastifyInstance): Promise<void> {
@@ -105,7 +105,7 @@ export async function metadatamodelRoutes(app: FastifyInstance): Promise<void> {
   );
 
   /** Publiceren: een nieuwe versie van het objecttype voor deze gemeente. Altijd met reden; in de audit. */
-  app.post<{ Body: { config: { basis: string; velden: { aan?: boolean }[] }; reden: string } }>(
+  app.post<{ Body: { config: { basis: string; naam?: string; velden: { aan?: boolean }[] }; reden: string } }>(
     "/api/metadatamodel/publiceer",
     {
       schema: {
@@ -130,7 +130,7 @@ export async function metadatamodelRoutes(app: FastifyInstance): Promise<void> {
         doel: `${OBJECTTYPE} versie ${type.versie}`,
         ip: req.ip,
         resultaat: "ok",
-        details: { basis: req.body.config.basis, velden: req.body.config.velden.filter((v) => v.aan).length, versie: type.versie, reden: req.body.reden },
+        details: { basis: req.body.config.basis, ...(req.body.config.naam?.trim() ? { naam: req.body.config.naam.trim() } : {}), velden: req.body.config.velden.filter((v) => v.aan).length, versie: type.versie, reden: req.body.reden },
       });
       return type;
     },

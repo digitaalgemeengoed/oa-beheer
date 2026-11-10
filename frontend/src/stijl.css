@@ -95,7 +95,8 @@ html, body { margin: 0; }
 .md-verschil { margin: 8px 0 16px; }
 .md-paneel { border: 1px solid #c8c8c8; border-radius: 8px; padding: 14px; background: #fff; font-size: 0.85rem; box-shadow: 0 6px 18px rgba(0,0,0,.08); max-height: calc(100vh - 140px); overflow: auto; }
 .md-paneel-kop { font-weight: 700; font-size: 1.1rem; }
-.md-paneel-sub { color: #555; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+.md-paneel-sub { color: #555; }
+.md-paneel-model { color: #555; font-size: 0.75em; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
 .md-paneel-veld { margin: 10px 0; }
 .md-paneel-label { font-weight: 600; }
 .md-paneel-hulp { color: #555; font-size: 0.8rem; margin: 2px 0 4px; }

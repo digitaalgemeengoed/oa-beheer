@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.4.0 — 2026-11-10
+
+**Metadatamodel: een eigen naam.** Bij stap 1 geef je het model een naam, zoals "RGBZ Haarlem". Die staat bovenaan het paneel Metadateren en in de eigenschappen van elk bestand, met het versienummer. Een andere naam is ook een nieuwe versie; het overzicht van wijzigingen noemt hem. De versietabel en "Nu in gebruik" tonen de naam, het voorbeeld van het paneel ook. De audit van een publicatie noemt de naam.
+
 ## 0.3.0 — 2026-11-09
 
 **Anonimiseren → Kwaliteit.** Een nieuwe pagina met een tab Kwaliteit: hoe goed de assistent persoonsgegevens herkent, uit wat medewerkers doen bij het anonimiseren in het document.

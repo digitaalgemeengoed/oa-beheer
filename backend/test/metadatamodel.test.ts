@@ -124,11 +124,16 @@ test("publiceren: met reden, in de audit, concept weg; een fout van het platform
   const audit = await pool.query("SELECT actie, doel, resultaat, details FROM audit WHERE actie = 'metadatamodel.gepubliceerd' ORDER BY id");
   assert.equal(audit.rows[0].doel, "document versie 2");
   assert.deepEqual(audit.rows[0].details, { basis: "rgbz", velden: 1, versie: 2, reden: "Overstap op RGBZ" });
+  const metNaam = await vraag(app, ib, "POST", "/api/metadatamodel/publiceer", { config: { ...config, naam: "RGBZ Haarlem" }, reden: "Eigen naam voor het model" });
+  assert.equal(metNaam.statusCode, 200, metNaam.body);
+  assert.equal((aanroepen.at(-1)!.lichaam as { config: { naam: string } }).config.naam, "RGBZ Haarlem", "de naam gaat mee naar het platform");
+  const a3 = await pool.query("SELECT details FROM audit WHERE actie = 'metadatamodel.gepubliceerd' ORDER BY id DESC LIMIT 1");
+  assert.equal(a3.rows[0].details.naam, "RGBZ Haarlem");
   const fout = await vraag(app, ib, "POST", "/api/metadatamodel/publiceer", { config: { basis: "fout", velden: [] }, reden: "Proberen wat er misgaat" });
   assert.equal(fout.statusCode, 422);
   assert.equal(fout.json().details[0].melding, "Er moet een veld voor de titel aan staan.");
   const a2 = await pool.query("SELECT resultaat FROM audit WHERE actie = 'metadatamodel.gepubliceerd' ORDER BY id");
-  assert.deepEqual(a2.rows.map((x) => x.resultaat), ["ok", "geweigerd"]);
+  assert.deepEqual(a2.rows.map((x) => x.resultaat), ["ok", "ok", "geweigerd"]);
 });
 
 test("anonimiseren, kwaliteit: alleen met anonimiseren.view; de vraag gaat door naar het platform", async () => {

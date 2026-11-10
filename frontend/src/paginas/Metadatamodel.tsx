@@ -38,8 +38,8 @@ interface VeldKeuze {
   waardelijst?: string;
   eigen?: { type: VeldType; maxLengte?: number; opties?: string[]; rol?: string };
 }
-interface Config { basis: ModelId; velden: VeldKeuze[] }
-interface Versie { versie: number; titel: string; gepubliceerd: string; gedeeld: boolean; door: string | null; model: ModelId | null; config: Config | null; velden: number }
+interface Config { basis: ModelId; naam?: string; velden: VeldKeuze[] }
+interface Versie { versie: number; titel: string; modelnaam?: string; gepubliceerd: string; gedeeld: boolean; door: string | null; model: ModelId | null; config: Config | null; velden: number }
 interface Stand {
   aan: boolean;
   gemeente?: string;
@@ -134,6 +134,12 @@ const T = {
   andereLijst: ["andere waardelijst", "different value list"],
   volgorde: ["andere volgorde", "different order"],
   basisNaar: ["Basismodel van", "Base model from"],
+  modelnaam: ["Naam van het model", "Name of the model"],
+  modelnaamUitleg: ["Zo heet het model bovenaan het paneel Metadateren en in de eigenschappen van elk bestand, met het versienummer. Leeg: de naam van het basismodel. Een andere naam is ook een nieuwe versie.", "This is what the model is called at the top of the Metadata panel and in the properties of each file, with its version number. Empty: the name of the base model. A new name is also a new version."],
+  naamVan: ["Naam van", "Name from"],
+  naam: ["Naam", "Name"],
+  status: ["status", "status"],
+  versieNieuw: ["nieuwe versie", "new version"],
   naar: ["naar", "to"],
 } as const;
 const tt = (k: keyof typeof T): string => T[k][taal() === "en" ? 1 : 0];
@@ -158,6 +164,7 @@ const ROLNAAM: Record<string, [string, string]> = {
   auteur: ["auteur", "author"],
   datum: ["datum", "date"],
   trefwoorden: ["trefwoorden", "keywords"],
+  status: ["status", "status"],
 };
 const rolNaam = (r: string) => ROLNAAM[r]?.[taal() === "en" ? 1 : 0] ?? r;
 
@@ -184,12 +191,16 @@ function sleutelUit(label: string): string {
   return /^[a-z]/.test(s) ? s.slice(0, 40) : `veld${s}`.slice(0, 40);
 }
 
+/** De naam zoals medewerkers die zien (modelnaam() in oa-contract). */
+const naamVan = (c: Config, cat: NonNullable<Stand["catalogus"]>) => c.naam?.trim() || cat.modellen[c.basis]?.naam || c.basis;
+
 const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Vaste volgorde van de sleutels: de database (jsonb) bewaart ze in een andere. */
 function vast(c: Config): unknown {
   return {
     basis: c.basis,
+    naam: c.naam?.trim() || undefined,
     velden: c.velden.map((v) => ({
       sleutel: v.sleutel,
       aan: v.aan,
@@ -276,7 +287,7 @@ function Bewerker({ ik, s, herlaad }: { ik: Ik; s: Stand; herlaad: () => void })
   const kiesModel = (id: ModelId) => {
     if (id === config.basis) return;
     if (zelfde(config, standaardConfig(model)) || zelfde(config, vanActief)) {
-      zetConfig(standaardConfig(cat.modellen[id]));
+      zetConfig({ ...standaardConfig(cat.modellen[id]), naam: config.naam });
       zetWissel(null);
     } else zetWissel(id);
   };
@@ -321,7 +332,8 @@ function Bewerker({ ik, s, herlaad }: { ik: Ik; s: Stand; herlaad: () => void })
             <b>
               {tt("versie")} {s.actief!.versie}
             </b>{" "}
-            · {s.actief!.config ? `${cat.modellen[s.actief!.config.basis].naam}` : tt("standaardmodel")}
+            · {s.actief!.config ? naamVan(s.actief!.config, cat) : tt("standaardmodel")}
+            {s.actief!.config?.naam?.trim() && !s.actief!.config.naam.includes(cat.modellen[s.actief!.config.basis].naam) ? ` (${cat.modellen[s.actief!.config.basis].naam})` : ""}
             {actiefVersie && !actiefVersie.gedeeld && actiefVersie.door ? ` · ${tijd(actiefVersie.gepubliceerd)} ${tt("door")} ${actiefVersie.door}` : ""}
           </div>
         </div>
@@ -362,13 +374,16 @@ function Bewerker({ ik, s, herlaad }: { ik: Ik; s: Stand; herlaad: () => void })
               <Alert type="warning">
                 <Paragraph>{tt("wissel")}</Paragraph>
                 <div className="ab-knoppen">
-                  <SecondaryActionButton onClick={() => { zetConfig(standaardConfig(cat.modellen[wissel])); zetWissel(null); zetOpen(null); }}>
+                  <SecondaryActionButton onClick={() => { zetConfig({ ...standaardConfig(cat.modellen[wissel]), naam: config.naam }); zetWissel(null); zetOpen(null); }}>
                     {tt("wisselToch")} ({cat.modellen[wissel].naam})
                   </SecondaryActionButton>
                   <SubtleButton onClick={() => zetWissel(null)}>{tt("klaar")}</SubtleButton>
                 </div>
               </Alert>
             )}
+            <FormField label={<FormLabel htmlFor="md-naam">{tt("modelnaam")}</FormLabel>} description={tt("modelnaamUitleg")}>
+              <Textbox id="md-naam" value={config.naam ?? ""} placeholder={model.naam} maxLength={80} disabled={!kan} onChange={(e) => zetConfig((c) => ({ ...c, naam: e.target.value || undefined }))} />
+            </FormField>
           </section>
 
           {/* 2. Velden */}
@@ -461,7 +476,7 @@ function Bewerker({ ik, s, herlaad }: { ik: Ik; s: Stand; herlaad: () => void })
         <aside className="md-voorbeeld" aria-labelledby="md-voorbeeld-titel">
           <Heading2 id="md-voorbeeld-titel">{tt("voorbeeld")}</Heading2>
           <p className="ab-klein">{tt("voorbeeldUitleg")}</p>
-          <Voorbeeld velden={controle?.velden ?? []} />
+          <Voorbeeld velden={controle?.velden ?? []} model={`${naamVan(config, cat)} · ${gewijzigd ? tt("versieNieuw") : `${tt("versie")} ${s.actief!.versie}`}`} />
         </aside>
       </div>
     </>
@@ -577,6 +592,7 @@ function NieuwVeld({ bestaand, cat, voegToe }: { bestaand: Set<string>; cat: Non
 function Verschil({ oud, nieuw, cat }: { oud: Config; nieuw: Config; cat: NonNullable<Stand["catalogus"]> }) {
   const regels: string[] = [];
   const naam = (c: Config, k: VeldKeuze) => k.label || cat.modellen[c.basis].velden.find((v) => v.sleutel === k.sleutel)?.label || k.sleutel;
+  if (naamVan(oud, cat) !== naamVan(nieuw, cat)) regels.push(`${tt("naamVan")} "${naamVan(oud, cat)}" ${tt("naar")} "${naamVan(nieuw, cat)}".`);
   if (oud.basis !== nieuw.basis) regels.push(`${tt("basisNaar")} ${cat.modellen[oud.basis].naam} ${tt("naar")} ${cat.modellen[nieuw.basis].naam}.`);
   // Bij een ander basismodel: velden met dezelfde betekenis (titel, vertrouwelijkheid …) horen bij elkaar.
   const rolVan = (c: Config, k: VeldKeuze) => k.eigen?.rol ?? cat.modellen[c.basis].velden.find((v) => v.sleutel === k.sleutel)?.rol;
@@ -603,17 +619,18 @@ function Verschil({ oud, nieuw, cat }: { oud: Config; nieuw: Config; cat: NonNul
   }
   for (const w of oud.velden) if (w.aan && !gekoppeld.has(w.sleutel) && !nieuw.velden.some((v) => v.sleutel === w.sleutel)) regels.push(`${naam(oud, w)}: ${tt("weggehaald")}.`);
   const volgorde = (c: Config) => c.velden.filter((v) => v.aan).map((v) => v.sleutel).join();
-  if (oud.basis === nieuw.basis && regels.length === 0 && volgorde(oud) !== volgorde(nieuw)) regels.push(`${tt("volgorde")}.`);
+  if (oud.basis === nieuw.basis && regels.every((r) => r.startsWith(tt("naamVan"))) && volgorde(oud) !== volgorde(nieuw)) regels.push(`${tt("volgorde")}.`);
   if (regels.length === 0) return <Paragraph className="ab-klein">{tt("geenVerschil")}</Paragraph>;
   return <ul className="md-verschil">{regels.map((r, i) => <li key={i}>{r}</li>)}</ul>;
 }
 
 /** Het paneel Metadateren, zoals de medewerker het straks ziet. */
-function Voorbeeld({ velden }: { velden: SchemaVeld[] }) {
+function Voorbeeld({ velden, model }: { velden: SchemaVeld[]; model: string }) {
   return (
     <div className="md-paneel" aria-hidden="true">
       <div className="md-paneel-kop">Metadateren</div>
       <div className="md-paneel-sub">{taal() === "en" ? "Attributes, and who says so" : "Kenmerken, en wie dat zegt"}</div>
+      <div className="md-paneel-model">{model}</div>
       <div className="md-paneel-veld">
         <div className="md-paneel-label">{taal() === "en" ? "Business or personal (required)" : "Zakelijk of persoonlijk (verplicht)"}</div>
         <div className="md-paneel-aard"><span className="aan">{tt("zakelijk")}</span><span>{tt("persoonlijk")}</span></div>
@@ -648,6 +665,7 @@ function Versies({ versies, cat, kan, neem }: { versies: Versie[]; cat: NonNulla
           <TableHeader>
             <TableRow>
               <TableHeaderCell>{tt("versie")}</TableHeaderCell>
+              <TableHeaderCell>{tt("naam")}</TableHeaderCell>
               <TableHeaderCell>{tt("stap1").replace(/^1\. /, "")}</TableHeaderCell>
               <TableHeaderCell>{tt("velden")}</TableHeaderCell>
               <TableHeaderCell>{taal() === "en" ? "Published" : "Gepubliceerd"}</TableHeaderCell>
@@ -658,6 +676,7 @@ function Versies({ versies, cat, kan, neem }: { versies: Versie[]; cat: NonNulla
             {versies.map((v) => (
               <TableRow key={`${v.versie}-${v.gedeeld}`}>
                 <TableCell>{v.versie} <span className="ab-klein">({v.gedeeld ? tt("gedeeld") : tt("eigenVersie")})</span></TableCell>
+                <TableCell>{v.modelnaam ?? (v.config ? naamVan(v.config, cat) : tt("standaardmodel"))}</TableCell>
                 <TableCell>{v.model ? cat.modellen[v.model]?.naam ?? v.model : tt("standaardmodel")}</TableCell>
                 <TableCell>{v.velden}</TableCell>
                 <TableCell>{tijd(v.gepubliceerd)}{v.door ? ` · ${v.door}` : ""}</TableCell>
