@@ -137,3 +137,24 @@ html, body { margin: 0; }
 .an-stip { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-left: 8px; }
 .an-juist-stip { background: #1b6f3f; }
 .an-onterecht-stip { background: #a4262c; }
+
+/* Classificatie */
+.cl-kolommen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 32px; align-items: start; }
+.cl-sectie { margin-top: 32px; }
+.cl-lijst { cursor: default; margin: 12px 0; }
+.cl-statussen { border: 1px solid #ddd; border-radius: 6px; padding: 8px 16px 12px; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.cl-statussen legend { font-weight: 600; padding: 0 4px; }
+.cl-statussen .ab-klein { flex-basis: 100%; margin: 0; }
+.cl-vink { display: inline-flex; gap: 6px; align-items: center; }
+.cl-afwijkingen { border-inline-start: 4px solid #c47a00; background: #fbf6ec; padding: 8px 16px; margin: 12px 0; }
+.cl-afwijkingen ul { margin: 4px 0; padding-inline-start: 18px; }
+.cl-procestypen { display: grid; gap: 6px; margin-top: 12px; }
+.cl-procestype { border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; background: #fff; }
+.cl-procestype summary { cursor: pointer; padding: 4px 0; }
+.cl-resultaten { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 4px; }
+.cl-resultaat { border-top: 1px solid #eee; padding: 6px 0; }
+.cl-resultaat.generiek .cl-naam > span:first-child { font-weight: 600; }
+.cl-resultaat.uit .cl-naam { color: #6b6b6b; text-decoration: line-through; text-decoration-color: #bbb; }
+.cl-regel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.cl-naam { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.cl-attribuut { display: grid; gap: 8px; }
