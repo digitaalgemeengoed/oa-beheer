@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.5.1 — 2026-11-10
+
+Metadatamodel: bij de Woo-informatiecategorie het vinkje **Ook "geen categorie (niet actief openbaar)" aanbieden**, met uitleg. Het overzicht van wijzigingen noemt het; een waarschuwing als de categorie verplicht is zonder deze keuze.
+
 ## 0.5.0 — 2026-11-10
 
 **Classificatie.** Een nieuwe pagina voor het classificatiemodel:

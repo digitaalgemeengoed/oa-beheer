@@ -37,6 +37,7 @@ interface VeldKeuze {
   beschrijving?: string;
   waardelijst?: string;
   eigen?: { type: VeldType; maxLengte?: number; opties?: string[]; rol?: string };
+  geenCategorie?: boolean;
 }
 interface Config { basis: ModelId; naam?: string; velden: VeldKeuze[] }
 interface Versie { versie: number; titel: string; modelnaam?: string; gepubliceerd: string; gedeeld: boolean; door: string | null; model: ModelId | null; config: Config | null; velden: number }
@@ -134,6 +135,14 @@ const T = {
   andereLijst: ["andere waardelijst", "different value list"],
   volgorde: ["andere volgorde", "different order"],
   basisNaar: ["Basismodel van", "Base model from"],
+  geenCategorie: ["Ook \"geen categorie (niet actief openbaar)\" aanbieden", "Also offer \"no category (not proactively published)\""],
+  geenCategorieUitleg: [
+    "Niet elk stuk valt in een categorie van artikel 3.3 Woo, zoals een gespreksverslag met een inwoner. Met deze keuze legt de medewerker dat vast in plaats van een categorie te kiezen die niet klopt. Het stuk blijft opvraagbaar met een Woo-verzoek.",
+    "Not every document falls into a category of article 3.3 of the Open Government Act, such as notes of a conversation with a resident. With this option the employee records that, instead of choosing a category that does not fit. The document can still be requested.",
+  ],
+  metGeen: ["ook \"geen categorie\"", "also \"no category\""],
+  geenAan: ["biedt nu ook \"geen categorie\" aan", "now also offers \"no category\""],
+  geenUit: ["biedt \"geen categorie\" niet meer aan", "no longer offers \"no category\""],
   modelnaam: ["Naam van het model", "Name of the model"],
   modelnaamUitleg: ["Zo heet het model bovenaan het paneel Metadateren en in de eigenschappen van elk bestand, met het versienummer. Leeg: de naam van het basismodel. Een andere naam is ook een nieuwe versie.", "This is what the model is called at the top of the Metadata panel and in the properties of each file, with its version number. Empty: the name of the base model. A new name is also a new version."],
   naamVan: ["Naam van", "Name from"],
@@ -169,7 +178,7 @@ const ROLNAAM: Record<string, [string, string]> = {
 const rolNaam = (r: string) => ROLNAAM[r]?.[taal() === "en" ? 1 : 0] ?? r;
 
 function standaardConfig(m: Model): Config {
-  return { basis: m.id, velden: m.velden.map((v) => ({ sleutel: v.sleutel, aan: !!v.aan, verplicht: !!v.verplicht })) };
+  return { basis: m.id, velden: m.velden.map((v) => ({ sleutel: v.sleutel, aan: !!v.aan, verplicht: !!v.verplicht, ...(v.rol === "informatiecategorie" ? { geenCategorie: true } : {}) })) };
 }
 
 /** Het model dat nu in gebruik is, als keuze. Het oude standaardmodel (zonder keuze) als MDTO met dezelfde velden. */
@@ -209,6 +218,7 @@ function vast(c: Config): unknown {
       beschrijving: v.beschrijving || undefined,
       waardelijst: v.waardelijst || undefined,
       eigen: v.eigen ? { type: v.eigen.type, maxLengte: v.eigen.maxLengte, opties: v.eigen.opties, rol: v.eigen.rol } : undefined,
+      geenCategorie: v.geenCategorie || undefined,
     })),
   };
 }
@@ -418,6 +428,7 @@ function Bewerker({ ik, s, herlaad }: { ik: Ik; s: Stand; herlaad: () => void })
                           {k.eigen && <span className="md-label md-eigen">{tt("eigen")}</span>}
                           {rol && <span className="md-label md-rol">{rolNaam(rol)}</span>}
                           {c?.verplichtInModel && <span className="md-label md-verplicht">{tt("verplichtInModel")}</span>}
+                          {k.geenCategorie && <span className="md-label">{tt("metGeen")}</span>}
                         </span>
                       </div>
                       <div className="md-veld-knoppen">
@@ -508,6 +519,16 @@ function VeldBewerken({ k, c, type, kan, cat, zet, weg }: {
       <FormField label={<FormLabel htmlFor={`${id}-hulp`}>{tt("hulptekst")}</FormLabel>} description={c ? tt("leegStandaard") : undefined}>
         <Textarea id={`${id}-hulp`} value={k.beschrijving ?? ""} placeholder={c?.beschrijving} rows={2} maxLength={500} disabled={!kan} onChange={(e) => zet({ beschrijving: e.target.value })} />
       </FormField>
+      {(k.eigen?.rol ?? c?.rol) === "informatiecategorie" && (
+        <FormField
+          label={
+            <label className="cl-vink" htmlFor={`${id}-geen`}>
+              <Checkbox id={`${id}-geen`} checked={!!k.geenCategorie} disabled={!kan} onChange={(e) => zet({ geenCategorie: e.target.checked || undefined })} /> {tt("geenCategorie")}
+            </label>
+          }
+          description={tt("geenCategorieUitleg")}
+        />
+      )}
       {k.eigen && (
         <div className="md-twee">
           <FormField label={<FormLabel htmlFor={`${id}-soort`}>{tt("soort")}</FormLabel>}>
@@ -612,6 +633,7 @@ function Verschil({ oud, nieuw, cat }: { oud: Config; nieuw: Config; cat: NonNul
     else if (!v.aan && w?.aan) regels.push(`${naam(oud, w)}: ${tt("weggehaald")}.`);
     else if (v.aan && w?.aan) {
       if (v.verplicht !== w.verplicht) regels.push(`${naam(nieuw, v)}: ${v.verplicht ? tt("nuVerplicht") : tt("nietVerplicht")}.`);
+      if (!!v.geenCategorie !== !!w.geenCategorie) regels.push(`${naam(nieuw, v)} ${v.geenCategorie ? tt("geenAan") : tt("geenUit")}.`);
       if (naam(oud, w) !== naam(nieuw, v)) regels.push(`${naam(oud, w)} ${tt("andersGenoemd")} "${naam(nieuw, v)}".`);
       const lijst = (c: Config, k: VeldKeuze) => k.waardelijst ?? cat.modellen[c.basis].velden.find((x) => x.sleutel === k.sleutel)?.waardelijst ?? "";
       if (lijst(oud, w) !== lijst(nieuw, v) || !gelijk(v.eigen?.opties ?? [], w.eigen?.opties ?? [])) regels.push(`${naam(nieuw, v)}: ${tt("andereLijst")}.`);
